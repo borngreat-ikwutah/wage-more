@@ -9,50 +9,90 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './app/__root'
-import { Route as IndexRouteImport } from './app/index'
+import { Route as publicMarketsIndexRouteImport } from './app/(public)/markets/index'
+import { Route as publicPublicIndexRouteImport } from './app/(public)/_public/index'
+import { Route as publicauthLoginIndexRouteImport } from './app/(public)/(auth)/login/index'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
+const publicMarketsIndexRoute = publicMarketsIndexRouteImport.update({
+  id: '/(public)/markets/',
+  path: '/markets/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const publicPublicIndexRoute = publicPublicIndexRouteImport.update({
+  id: '/(public)/_public/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const publicauthLoginIndexRoute = publicauthLoginIndexRouteImport.update({
+  id: '/(public)/(auth)/login/',
+  path: '/login/',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof publicPublicIndexRoute
+  '/markets': typeof publicMarketsIndexRoute
+  '/login': typeof publicauthLoginIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof publicPublicIndexRoute
+  '/markets': typeof publicMarketsIndexRoute
+  '/login': typeof publicauthLoginIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/(public)/_public/': typeof publicPublicIndexRoute
+  '/(public)/markets/': typeof publicMarketsIndexRoute
+  '/(public)/(auth)/login/': typeof publicauthLoginIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/markets' | '/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/markets' | '/login'
+  id:
+    | '__root__'
+    | '/(public)/_public/'
+    | '/(public)/markets/'
+    | '/(public)/(auth)/login/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  publicPublicIndexRoute: typeof publicPublicIndexRoute
+  publicMarketsIndexRoute: typeof publicMarketsIndexRoute
+  publicauthLoginIndexRoute: typeof publicauthLoginIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/(public)/markets/': {
+      id: '/(public)/markets/'
+      path: '/markets'
+      fullPath: '/markets'
+      preLoaderRoute: typeof publicMarketsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(public)/_public/': {
+      id: '/(public)/_public/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof publicPublicIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(public)/(auth)/login/': {
+      id: '/(public)/(auth)/login/'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof publicauthLoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  publicPublicIndexRoute: publicPublicIndexRoute,
+  publicMarketsIndexRoute: publicMarketsIndexRoute,
+  publicauthLoginIndexRoute: publicauthLoginIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
