@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './app/__root'
 import { Route as publicMarketsIndexRouteImport } from './app/(public)/markets/index'
 import { Route as publicPublicIndexRouteImport } from './app/(public)/_public/index'
+import { Route as ApiAuthSplatRouteImport } from './app/api/auth/$'
 import { Route as publicauthLoginIndexRouteImport } from './app/(public)/(auth)/login/index'
 
 const publicMarketsIndexRoute = publicMarketsIndexRouteImport.update({
@@ -23,6 +24,11 @@ const publicPublicIndexRoute = publicPublicIndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const publicauthLoginIndexRoute = publicauthLoginIndexRouteImport.update({
   id: '/(public)/(auth)/login/',
   path: '/login/',
@@ -30,34 +36,39 @@ const publicauthLoginIndexRoute = publicauthLoginIndexRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/': typeof publicPublicIndexRoute
   '/markets': typeof publicMarketsIndexRoute
   '/login': typeof publicauthLoginIndexRoute
 }
 export interface FileRoutesByTo {
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/': typeof publicPublicIndexRoute
   '/markets': typeof publicMarketsIndexRoute
   '/login': typeof publicauthLoginIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/(public)/_public/': typeof publicPublicIndexRoute
   '/(public)/markets/': typeof publicMarketsIndexRoute
   '/(public)/(auth)/login/': typeof publicauthLoginIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/markets' | '/login'
+  fullPaths: '/api/auth/$' | '/' | '/markets' | '/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/markets' | '/login'
+  to: '/api/auth/$' | '/' | '/markets' | '/login'
   id:
     | '__root__'
+    | '/api/auth/$'
     | '/(public)/_public/'
     | '/(public)/markets/'
     | '/(public)/(auth)/login/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   publicPublicIndexRoute: typeof publicPublicIndexRoute
   publicMarketsIndexRoute: typeof publicMarketsIndexRoute
   publicauthLoginIndexRoute: typeof publicauthLoginIndexRoute
@@ -79,6 +90,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof publicPublicIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(public)/(auth)/login/': {
       id: '/(public)/(auth)/login/'
       path: '/login'
@@ -90,6 +108,7 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
   publicPublicIndexRoute: publicPublicIndexRoute,
   publicMarketsIndexRoute: publicMarketsIndexRoute,
   publicauthLoginIndexRoute: publicauthLoginIndexRoute,

@@ -79,7 +79,7 @@ export function Navbar() {
               <div className="relative">
                 <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-neutral-500" />
                 <Input
-                  className="pl-8 !py-5 focus:outline-none shad-no-focus border border-secondary-900"
+                  className="pl-8 py-5! focus:outline-none shad-no-focus border border-secondary-900"
                   placeholder="Search for Markets"
                 />
               </div>

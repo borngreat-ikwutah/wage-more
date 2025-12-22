@@ -19,6 +19,7 @@ declare global {
       readonly BETTER_AUTH_URL: string;
       readonly STRIPE_SECRET_KEY: string;
       readonly NODE_ENV: "development" | "production" | "test";
+      readonly FLOW_WALLET_PRIVATE_KEY: string;
     }
   }
 }
