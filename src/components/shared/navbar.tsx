@@ -1,7 +1,11 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
-import { SearchIcon, MenuIcon } from "lucide-react";
+import { SearchIcon, MenuIcon, User, LogOut } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { navbarLinks } from "~/constants";
+import { getCurrentUser } from "~/server/user";
+import { authClient } from "~/lib/auth-client";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import {
@@ -12,12 +16,53 @@ import {
   SheetTitle,
   SheetDescription,
 } from "../ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "../ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { ThemeSwitcher } from "./theme-switcher";
+import { toast } from "sonner";
 
 export function Navbar() {
+  const navigate = useNavigate();
+  const router = useRouter();
+  const getCurrentUserFn = useServerFn(getCurrentUser);
+
+  // Use React Query to cache user data
+  const { data: userResponse, isLoading } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: () => getCurrentUserFn(),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchOnWindowFocus: false,
+  });
+
+  const isAuthenticated = userResponse?.authenticated ?? false;
+  const user = userResponse?.user ?? null;
+
+  const handleSignOut = async () => {
+    try {
+      await authClient.signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            router.invalidate();
+            toast.success("Signed out successfully");
+            navigate({ to: "/" });
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Sign out error:", error);
+    }
+  };
+
   return (
     <nav className="w-full px-4 md:px-[60px] py-6 flex justify-between items-center gap-4">
       {/* Logo Section */}
-      <div className="flex items-center gap-2">
+      <Link className="flex items-center gap-2" to="/">
         <Image
           src="/logo.svg"
           alt="WageMore Logo"
@@ -28,7 +73,7 @@ export function Navbar() {
         <h1 className="font-bold text-shadow-white text-base mt-0.5">
           WAGEMORE
         </h1>
-      </div>
+      </Link>
 
       {/* Search Bar - Hidden on mobile, shown on md+ */}
       <div className="relative w-[40%] hidden md:block">
@@ -39,8 +84,7 @@ export function Navbar() {
         />
       </div>
 
-      {/* Desktop Navigation - Hidden on mobile, shown on lg+ */}
-      <div className="lg:flex items-center gap-6 hidden">
+      <div className="lg:flex items-center gap-6 hidden mt-[0.5px]">
         {navbarLinks.map((link) => (
           <Link
             key={link.href}
@@ -52,11 +96,51 @@ export function Navbar() {
         ))}
       </div>
 
-      {/* Desktop Get Started Button - Hidden on mobile */}
-      <div className="hidden md:block">
-        <Button asChild>
-          <Link to="/login">Get Started</Link>
-        </Button>
+      {/* Desktop Auth Section - Hidden on mobile */}
+      <div className="hidden md:flex items-center gap-2">
+        {isLoading ? (
+          <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
+        ) : isAuthenticated && user ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 rounded-full">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={user.image || ""} alt={user.name || ""} />
+                  <AvatarFallback>
+                    {user.name?.charAt(0).toUpperCase() || "U"}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end">
+              <div className="flex items-center justify-start gap-2 p-2">
+                <div className="flex flex-col space-y-1 leading-none">
+                  <p className="font-medium">{user.name}</p>
+                  <p className="w-[200px] truncate text-sm text-muted-foreground">
+                    {user.email}
+                  </p>
+                </div>
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="." className="flex items-center">
+                  <User className="mr-2 h-4 w-4" />
+                  Dashboard
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleSignOut}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Button asChild>
+            <Link to="/login">Get Started</Link>
+          </Button>
+        )}
+        <ThemeSwitcher />
       </div>
 
       {/* Mobile Menu - Sheet Component */}
@@ -97,9 +181,45 @@ export function Navbar() {
                 ))}
               </div>
 
-              {/* Mobile Get Started Button */}
+              {/* Mobile Auth Section */}
               <div className="pt-4 border-t">
-                <Button className="w-full">Get Started</Button>
+                {isLoading ? (
+                  <div className="w-full h-10 bg-gray-200 animate-pulse rounded" />
+                ) : isAuthenticated && user ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 p-2">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage
+                          src={user.image || ""}
+                          alt={user.name || ""}
+                        />
+                        <AvatarFallback>
+                          {user.name?.charAt(0).toUpperCase() || "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium">{user.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {user.email}
+                        </p>
+                      </div>
+                    </div>
+                    <Button variant="outline" className="w-full" asChild>
+                      <Link to="..">Dashboard</Link>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={handleSignOut}
+                    >
+                      Sign out
+                    </Button>
+                  </div>
+                ) : (
+                  <Button className="w-full" asChild>
+                    <Link to="/login">Get Started</Link>
+                  </Button>
+                )}
               </div>
             </div>
           </SheetContent>

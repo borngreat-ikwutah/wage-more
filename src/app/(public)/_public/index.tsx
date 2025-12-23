@@ -1,10 +1,7 @@
 // src/routes/index.tsx
-import * as fs from "node:fs";
-import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { Button } from "~/components/ui/button";
-import { ThemeSwitcher } from "~/components/shared";
+import { createFileRoute } from "@tanstack/react-router";
 import { AppPage } from "~/features/home";
+import { getCurrentUser } from "~/server/user";
 
 export const Route = createFileRoute("/(public)/_public/")({
   component: AppPage,

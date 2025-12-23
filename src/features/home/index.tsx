@@ -1,3 +1,4 @@
+import { Route } from "~/app/(public)/_public";
 import { Navbar } from "~/components/shared/navbar";
 
 export function AppPage() {

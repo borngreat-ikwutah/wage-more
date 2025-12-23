@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './app/__root'
 import { Route as publicMarketsIndexRouteImport } from './app/(public)/markets/index'
 import { Route as publicPublicIndexRouteImport } from './app/(public)/_public/index'
 import { Route as ApiAuthSplatRouteImport } from './app/api/auth/$'
+import { Route as publicDashboardHomeIndexRouteImport } from './app/(public)/dashboard/home/index'
 import { Route as publicauthLoginIndexRouteImport } from './app/(public)/(auth)/login/index'
 
 const publicMarketsIndexRoute = publicMarketsIndexRouteImport.update({
@@ -29,6 +30,12 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const publicDashboardHomeIndexRoute =
+  publicDashboardHomeIndexRouteImport.update({
+    id: '/(public)/dashboard/home/',
+    path: '/dashboard/home/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const publicauthLoginIndexRoute = publicauthLoginIndexRouteImport.update({
   id: '/(public)/(auth)/login/',
   path: '/login/',
@@ -40,12 +47,14 @@ export interface FileRoutesByFullPath {
   '/': typeof publicPublicIndexRoute
   '/markets': typeof publicMarketsIndexRoute
   '/login': typeof publicauthLoginIndexRoute
+  '/dashboard/home': typeof publicDashboardHomeIndexRoute
 }
 export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/': typeof publicPublicIndexRoute
   '/markets': typeof publicMarketsIndexRoute
   '/login': typeof publicauthLoginIndexRoute
+  '/dashboard/home': typeof publicDashboardHomeIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,18 +62,20 @@ export interface FileRoutesById {
   '/(public)/_public/': typeof publicPublicIndexRoute
   '/(public)/markets/': typeof publicMarketsIndexRoute
   '/(public)/(auth)/login/': typeof publicauthLoginIndexRoute
+  '/(public)/dashboard/home/': typeof publicDashboardHomeIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/api/auth/$' | '/' | '/markets' | '/login'
+  fullPaths: '/api/auth/$' | '/' | '/markets' | '/login' | '/dashboard/home'
   fileRoutesByTo: FileRoutesByTo
-  to: '/api/auth/$' | '/' | '/markets' | '/login'
+  to: '/api/auth/$' | '/' | '/markets' | '/login' | '/dashboard/home'
   id:
     | '__root__'
     | '/api/auth/$'
     | '/(public)/_public/'
     | '/(public)/markets/'
     | '/(public)/(auth)/login/'
+    | '/(public)/dashboard/home/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -72,6 +83,7 @@ export interface RootRouteChildren {
   publicPublicIndexRoute: typeof publicPublicIndexRoute
   publicMarketsIndexRoute: typeof publicMarketsIndexRoute
   publicauthLoginIndexRoute: typeof publicauthLoginIndexRoute
+  publicDashboardHomeIndexRoute: typeof publicDashboardHomeIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -97,6 +109,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(public)/dashboard/home/': {
+      id: '/(public)/dashboard/home/'
+      path: '/dashboard/home'
+      fullPath: '/dashboard/home'
+      preLoaderRoute: typeof publicDashboardHomeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(public)/(auth)/login/': {
       id: '/(public)/(auth)/login/'
       path: '/login'
@@ -112,6 +131,7 @@ const rootRouteChildren: RootRouteChildren = {
   publicPublicIndexRoute: publicPublicIndexRoute,
   publicMarketsIndexRoute: publicMarketsIndexRoute,
   publicauthLoginIndexRoute: publicauthLoginIndexRoute,
+  publicDashboardHomeIndexRoute: publicDashboardHomeIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

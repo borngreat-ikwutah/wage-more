@@ -15,6 +15,13 @@
       "when": 1766354464147,
       "tag": "0001_neat_legion",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1766421472526,
+      "tag": "0002_useful_randall_flagg",
+      "breakpoints": true
     }
   ]
 }
