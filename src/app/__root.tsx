@@ -38,22 +38,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   shellComponent: RootDocument,
 });
 
-function ClientOnlyRainbowKit({ children }: { children: React.ReactNode }) {
-  const [hasMounted, setHasMounted] = React.useState(false);
-
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  if (!hasMounted) {
-    return <>{children}</>;
-  }
-
-  return (
-    <RainbowKitProvider modalSize="compact">{children}</RainbowKitProvider>
-  );
-}
-
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -61,7 +45,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body className="min-h-screen antialiased">
-        <ClientOnlyRainbowKit>{children}</ClientOnlyRainbowKit>
+        {children}
         {process.env.NODE_ENV === "development" && (
           <TanStackDevtools
             config={{
