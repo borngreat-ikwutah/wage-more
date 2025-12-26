@@ -13,6 +13,7 @@ import { Route as publicMarketsIndexRouteImport } from './app/(public)/markets/i
 import { Route as publicPublicIndexRouteImport } from './app/(public)/_public/index'
 import { Route as ApiAuthSplatRouteImport } from './app/api/auth/$'
 import { Route as publicDashboardHomeIndexRouteImport } from './app/(public)/dashboard/home/index'
+import { Route as publicauthOnboardingIndexRouteImport } from './app/(public)/(auth)/onboarding/index'
 import { Route as publicauthLoginIndexRouteImport } from './app/(public)/(auth)/login/index'
 
 const publicMarketsIndexRoute = publicMarketsIndexRouteImport.update({
@@ -36,6 +37,12 @@ const publicDashboardHomeIndexRoute =
     path: '/dashboard/home/',
     getParentRoute: () => rootRouteImport,
   } as any)
+const publicauthOnboardingIndexRoute =
+  publicauthOnboardingIndexRouteImport.update({
+    id: '/(public)/(auth)/onboarding/',
+    path: '/onboarding/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const publicauthLoginIndexRoute = publicauthLoginIndexRouteImport.update({
   id: '/(public)/(auth)/login/',
   path: '/login/',
@@ -47,6 +54,7 @@ export interface FileRoutesByFullPath {
   '/': typeof publicPublicIndexRoute
   '/markets': typeof publicMarketsIndexRoute
   '/login': typeof publicauthLoginIndexRoute
+  '/onboarding': typeof publicauthOnboardingIndexRoute
   '/dashboard/home': typeof publicDashboardHomeIndexRoute
 }
 export interface FileRoutesByTo {
@@ -54,6 +62,7 @@ export interface FileRoutesByTo {
   '/': typeof publicPublicIndexRoute
   '/markets': typeof publicMarketsIndexRoute
   '/login': typeof publicauthLoginIndexRoute
+  '/onboarding': typeof publicauthOnboardingIndexRoute
   '/dashboard/home': typeof publicDashboardHomeIndexRoute
 }
 export interface FileRoutesById {
@@ -62,19 +71,33 @@ export interface FileRoutesById {
   '/(public)/_public/': typeof publicPublicIndexRoute
   '/(public)/markets/': typeof publicMarketsIndexRoute
   '/(public)/(auth)/login/': typeof publicauthLoginIndexRoute
+  '/(public)/(auth)/onboarding/': typeof publicauthOnboardingIndexRoute
   '/(public)/dashboard/home/': typeof publicDashboardHomeIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/api/auth/$' | '/' | '/markets' | '/login' | '/dashboard/home'
+  fullPaths:
+    | '/api/auth/$'
+    | '/'
+    | '/markets'
+    | '/login'
+    | '/onboarding'
+    | '/dashboard/home'
   fileRoutesByTo: FileRoutesByTo
-  to: '/api/auth/$' | '/' | '/markets' | '/login' | '/dashboard/home'
+  to:
+    | '/api/auth/$'
+    | '/'
+    | '/markets'
+    | '/login'
+    | '/onboarding'
+    | '/dashboard/home'
   id:
     | '__root__'
     | '/api/auth/$'
     | '/(public)/_public/'
     | '/(public)/markets/'
     | '/(public)/(auth)/login/'
+    | '/(public)/(auth)/onboarding/'
     | '/(public)/dashboard/home/'
   fileRoutesById: FileRoutesById
 }
@@ -83,6 +106,7 @@ export interface RootRouteChildren {
   publicPublicIndexRoute: typeof publicPublicIndexRoute
   publicMarketsIndexRoute: typeof publicMarketsIndexRoute
   publicauthLoginIndexRoute: typeof publicauthLoginIndexRoute
+  publicauthOnboardingIndexRoute: typeof publicauthOnboardingIndexRoute
   publicDashboardHomeIndexRoute: typeof publicDashboardHomeIndexRoute
 }
 
@@ -116,6 +140,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof publicDashboardHomeIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(public)/(auth)/onboarding/': {
+      id: '/(public)/(auth)/onboarding/'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof publicauthOnboardingIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(public)/(auth)/login/': {
       id: '/(public)/(auth)/login/'
       path: '/login'
@@ -131,6 +162,7 @@ const rootRouteChildren: RootRouteChildren = {
   publicPublicIndexRoute: publicPublicIndexRoute,
   publicMarketsIndexRoute: publicMarketsIndexRoute,
   publicauthLoginIndexRoute: publicauthLoginIndexRoute,
+  publicauthOnboardingIndexRoute: publicauthOnboardingIndexRoute,
   publicDashboardHomeIndexRoute: publicDashboardHomeIndexRoute,
 }
 export const routeTree = rootRouteImport

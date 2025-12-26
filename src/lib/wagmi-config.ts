@@ -1,11 +1,13 @@
-import { getDefaultConfig } from "@rainbow-me/rainbowkit";
+import { createConfig, http } from "wagmi";
 import { mainnet, sepolia } from "wagmi/chains";
 
-export const config = getDefaultConfig({
-  appName: "WageMore",
-  projectId: "YOUR_PROJECT_ID",
+export const config = createConfig({
   chains: [mainnet, sepolia],
-  ssr: true, // Important for SSR support
+  transports: {
+    [mainnet.id]: http(),
+    [sepolia.id]: http(),
+  },
+  ssr: true,
 });
 
 declare module "wagmi" {

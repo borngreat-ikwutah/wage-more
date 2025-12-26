@@ -1,5 +1,12 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  boolean,
+  index,
+  jsonb,
+} from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -9,6 +16,10 @@ export const user = pgTable("user", {
   image: text("image"),
   walletAddress: text("wallet_address").unique(), // Add wallet address
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  referralCode: text("referral_code").unique(), // The user's own code (e.g., "JOHND123")
+  referredBy: text("referred_by"),
+  onboardingCompleted: boolean("onboarding_completed").default(false).notNull(),
+  interests: jsonb("interests").$type<string[]>().default([]),
   updatedAt: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => new Date())

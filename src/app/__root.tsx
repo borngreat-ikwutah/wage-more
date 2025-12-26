@@ -13,12 +13,8 @@ import appCss from "../styles.css?url";
 import { seoConfig } from "../seo";
 import { Toaster } from "~/components/ui/sonner";
 
-// Import RainbowKit styles
-import "@rainbow-me/rainbowkit/styles.css";
-
 import type { QueryClient } from "@tanstack/react-query";
 import React, { useEffect } from "react";
-import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 
 interface MyRouterContext {
   queryClient: QueryClient;

@@ -1,11 +1,5 @@
-import React, { useState } from "react";
-import {
-  Search,
-  SlidersHorizontal,
-  LayoutGrid,
-  ListFilter,
-  Star,
-} from "lucide-react";
+import { LayoutGrid, ListFilter, Star } from "lucide-react";
+import { useState } from "react";
 import { MarketCard, type MarketType } from "~/components/shared/market-card"; // Import from the file above
 
 // --- Mock Data Matching Your Image ---
@@ -68,7 +62,7 @@ const MOCK_MARKETS = [
     id: 5,
     title: "Israel x Hamas cease-fire by January 31?",
     imageSrc:
-      "https://images.unsplash.com/photo-1535929981893-853109a807d8?auto=format&fit=crop&w=100&q=80",
+      "https://images.unsplash.com/photo-1615109398623-88346a601842?auto=format&fit=crop&w=100&q=80",
     type: "binary" as MarketType,
     volume: "$1.2M",
     comments: 89,
@@ -109,7 +103,7 @@ export const MarketsSection = () => {
       <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
         {/* Left: Animation Toggle & Tags */}
         <div className="flex items-center gap-4 w-full md:w-auto overflow-x-auto no-scrollbar">
-          <button className="flex items-center gap-2 bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg text-sm font-medium border border-slate-700 whitespace-nowrap">
+          <button className="flex items-center gap-2 bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg text-sm font-medium border border-slate-700 whitespace-nowrap dark:bg-background dark:text-foreground">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
@@ -120,7 +114,7 @@ export const MarketsSection = () => {
             </div>
           </button>
 
-          <div className="h-6 w-[1px] bg-slate-700 mx-2" />
+          <div className="h-6 w-px bg-slate-700 mx-2" />
 
           <div className="flex gap-2">
             {FILTERS.map((filter) => (

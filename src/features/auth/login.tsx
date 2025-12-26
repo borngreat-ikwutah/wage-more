@@ -1,12 +1,12 @@
-import { redirect, useRouter } from "@tanstack/react-router";
-import { createServerFn, useServerFn } from "@tanstack/react-start";
+import { useRouter } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
-import { Loader2 } from "lucide-react"; // or your preferred loading icon
+import { Loader2 } from "lucide-react";
 import { authClient } from "~/lib/auth-client";
+import { checkOnboardingStatus } from "~/server/auth";
 
 export function AuthPage() {
   const router = useRouter();
@@ -22,16 +22,58 @@ export function AuthPage() {
         },
         {
           onSuccess: async () => {
-            await router.invalidate();
-            toast.success("Welcome to Wagemore");
-            redirect({
-              to: "/",
-            });
+            try {
+              // Invalidate router to refresh auth state
+              await router.invalidate();
+
+              // Small delay to ensure session is properly set
+              await new Promise((resolve) => setTimeout(resolve, 500));
+
+              // Check onboarding status after successful authentication
+              const onboardingStatus = await checkOnboardingStatus();
+
+              if (onboardingStatus.needsAuth) {
+                // This shouldn't happen since we just signed in, but handle it
+                toast.error("Authentication failed. Please try again.");
+                setIsLoading(false);
+                return;
+              }
+
+              if (onboardingStatus.isCompleted) {
+                // User has completed onboarding, redirect to home page
+                toast.success(
+                  `Welcome back${onboardingStatus.username ? `, ${onboardingStatus.username}` : ""}!`,
+                );
+                router.navigate({
+                  to: "/",
+                  replace: true, // Replace current history entry
+                });
+              } else {
+                // User needs to complete onboarding
+                toast.success(
+                  "Welcome to Wagemore! Let's complete your setup.",
+                );
+                router.navigate({
+                  to: "/onboarding",
+                  replace: true, // Replace current history entry
+                });
+              }
+            } catch (error) {
+              console.error("Error checking onboarding status:", error);
+              // If we can't check onboarding status, default to onboarding page
+              toast.success("Welcome to Wagemore!");
+              router.navigate({
+                to: "/onboarding",
+                replace: true,
+              });
+            } finally {
+              setIsLoading(false);
+            }
           },
           onError: (error) => {
             toast.error("Sign in failed. Please try again.");
             console.error("Auth error:", error);
-            setIsLoading(false); // Reset loading on error
+            setIsLoading(false);
           },
         },
       );
