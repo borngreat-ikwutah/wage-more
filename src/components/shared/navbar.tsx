@@ -136,7 +136,7 @@ export function Navbar() {
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link to="." className="flex items-center">
+                  <Link to="/dashboard/home" className="flex items-center">
                     <User className="mr-2 h-4 w-4" />
                     Dashboard
                   </Link>

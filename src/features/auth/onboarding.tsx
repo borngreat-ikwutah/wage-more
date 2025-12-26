@@ -7,6 +7,8 @@ import { z } from "zod";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAccount, useSignMessage } from "wagmi";
 import { useRouter } from "@tanstack/react-router";
+import { useQuery, queryOptions } from "@tanstack/react-query";
+import { Image } from "@unpic/react";
 import {
   Loader2,
   CheckCircle2,
@@ -91,74 +93,55 @@ const INTERESTS_DATA = [
   { id: "Business", icon: Briefcase },
 ];
 
+// Query Options for onboarding status check
+const onboardingStatusOptions = (userId?: string) =>
+  queryOptions({
+    queryKey: ["onboarding-status", userId],
+    queryFn: async () => {
+      if (!userId) {
+        throw new Error("No user ID available");
+      }
+      return await checkOnboardingStatus();
+    },
+    enabled: !!userId,
+    staleTime: 0, // Always fresh
+    retry: false,
+  });
+
+// Query Options for current user data
+const currentUserOptions = (userId?: string) =>
+  queryOptions({
+    queryKey: ["current-user", userId],
+    queryFn: async () => {
+      if (!userId) {
+        throw new Error("No user ID available");
+      }
+      return await getCurrentUser();
+    },
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
 // Custom Success Animation (SVG-based)
+// Custom Success Animation with WebM
 const SuccessAnimation = () => {
   return (
     <div className="relative w-32 h-32 flex items-center justify-center">
-      <motion.svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 100 100"
-        className="absolute w-full h-full text-primary"
-        initial="hidden"
-        animate="visible"
-        variants={{
-          hidden: { opacity: 0, scale: 0 },
-          // @ts-ignore
-          visible: {
-            opacity: [0, 1, 0],
-            scale: [0.8, 1.2, 1.5],
-            transition: {
-              duration: 0.8,
-              ease: "easeOut",
-              delay: 0.7,
-              times: [0, 0.2, 1],
-            },
-          },
+      <motion.video
+        src="/animations/wagemore-success.webm" // Place your WebM file in the public folder
+        autoPlay
+        loop={false} // Set to true if you want it to loop
+        muted
+        playsInline
+        className="w-full h-full object-contain"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        onEnded={() => {
+          // Optional: Do something when animation ends
+          console.log("Confetti animation completed");
         }}
-      >
-        <circle
-          cx="50"
-          cy="50"
-          r="40"
-          stroke="currentColor"
-          strokeWidth="2"
-          fill="none"
-          strokeDasharray="10 10"
-        />
-        <circle
-          cx="50"
-          cy="50"
-          r="30"
-          stroke="currentColor"
-          strokeWidth="3"
-          fill="none"
-          strokeDasharray="5 15"
-          className="opacity-50"
-        />
-        <motion.circle
-          cx="50"
-          cy="50"
-          r="20"
-          stroke="currentColor"
-          strokeWidth="4"
-          fill="none"
-          className="opacity-75"
-          initial={{ opacity: 0, pathLength: 0 }}
-          animate={{ opacity: 1, pathLength: 1 }}
-          transition={{ duration: 0.6, ease: "easeInOut" }}
-        />
-        <motion.path
-          d="M35 50 L45 60 L65 40"
-          stroke="currentColor"
-          strokeWidth="5"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          initial={{ opacity: 0, pathLength: 0 }}
-          animate={{ opacity: 1, pathLength: 1 }}
-          transition={{ duration: 0.5, ease: "easeInOut", delay: 0.3 }}
-        />
-      </motion.svg>
+      />
     </div>
   );
 };
@@ -167,7 +150,6 @@ export function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
   const { address, isConnected } = useAccount();
   const { signMessageAsync } = useSignMessage();
@@ -175,17 +157,30 @@ export function OnboardingPage() {
 
   // Better-auth session data
   const { data: session, isPending } = authClient.useSession();
-  const [currentUser, setCurrentUser] = useState<any>(null);
 
   const totalSteps = 4;
   const progressValue = (step / totalSteps) * 100;
+
+  // Use query options for onboarding status
+  const {
+    data: onboardingStatus,
+    isLoading: isLoadingOnboarding,
+    error: onboardingError,
+  } = useQuery(onboardingStatusOptions(session?.user?.id));
+
+  // Use query options for current user data
+  const {
+    data: currentUser,
+    isLoading: isLoadingUser,
+    error: userError,
+  } = useQuery(currentUserOptions(session?.user?.id));
 
   // Initialize react-hook-form
   const form = useForm<OnboardingFormData>({
     resolver: zodResolver(onboardingSchema),
     defaultValues: {
-      username: "",
-      interests: [],
+      username: currentUser?.name || "",
+      interests: currentUser?.interests || [],
       walletAddress: "",
       signature: "",
     },
@@ -198,56 +193,47 @@ export function OnboardingPage() {
   const username = watch("username");
   const selectedInterests = watch("interests");
 
-  // Check authentication and onboarding status on mount
+  // Handle redirects based on query results
   useEffect(() => {
-    const checkAuthAndOnboarding = async () => {
-      try {
-        setIsLoading(true);
+    if (isPending || isLoadingOnboarding) return;
 
-        if (isPending) {
-          return; // Wait for session to load
-        }
+    if (!session?.user) {
+      router.navigate({ to: "/login" });
+      return;
+    }
 
-        if (!session?.user) {
-          // Not authenticated, redirect to login
-          router.navigate({ to: "/login" });
-          return;
-        }
+    if (onboardingStatus?.isCompleted) {
+      toast.success("Welcome back! Redirecting to dashboard...");
+      router.navigate({ to: "/dashboard/home" });
+      return;
+    }
 
-        // Check onboarding status
-        const onboardingStatus = await checkOnboardingStatus();
+    // Pre-fill form if user has data
+    if (currentUser?.name && !username) {
+      setValue("username", currentUser.name);
+    }
+    if (
+      currentUser?.interests &&
+      currentUser.interests.length > 0 &&
+      selectedInterests.length === 0
+    ) {
+      setValue("interests", currentUser.interests);
+    }
+  }, [
+    session,
+    isPending,
+    isLoadingOnboarding,
+    onboardingStatus,
+    currentUser,
+    router,
+    setValue,
+    username,
+    selectedInterests,
+  ]);
 
-        if (onboardingStatus.isCompleted) {
-          // Already completed onboarding, redirect to dashboard
-          toast.success("Welcome back! Redirecting to dashboard...");
-          router.navigate({ to: "/dashboard/home" });
-          return;
-        }
-
-        // Get current user data
-        const userData = await getCurrentUser();
-        setCurrentUser(userData);
-
-        // Pre-fill form if user has some data
-        if (userData?.name) {
-          setValue("username", userData.name);
-        }
-        if (userData?.interests && userData.interests.length > 0) {
-          setValue("interests", userData.interests);
-        }
-      } catch (error) {
-        console.error("Error checking auth/onboarding status:", error);
-        toast.error("Something went wrong. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuthAndOnboarding();
-  }, [session, isPending, router, setValue]);
-
-  // Show loading spinner while checking auth
-  if (isLoading || isPending) {
+  // Show loading spinner while checking auth/onboarding
+  const isLoading = isPending || isLoadingOnboarding || isLoadingUser;
+  if (isLoading) {
     return (
       <main className="flex min-h-svh flex-col justify-center items-center gap-6 p-6 md:p-10 bg-muted/50">
         <Card className="w-full max-w-lg p-8">
@@ -266,6 +252,24 @@ export function OnboardingPage() {
   // Don't render anything if no session (will redirect)
   if (!session?.user) {
     return null;
+  }
+
+  // Handle query errors
+  if (onboardingError || userError) {
+    toast.error("Something went wrong. Please try again.");
+    return (
+      <main className="flex min-h-svh flex-col justify-center items-center gap-6 p-6 md:p-10 bg-muted/50">
+        <Card className="w-full max-w-lg p-8">
+          <div className="flex flex-col items-center justify-center space-y-4">
+            <p className="text-lg font-medium">Error loading data</p>
+            <p className="text-sm text-muted-foreground">
+              Please refresh the page to try again.
+            </p>
+            <Button onClick={() => router.invalidate()}>Refresh Page</Button>
+          </div>
+        </Card>
+      </main>
+    );
   }
 
   // --- Handlers ---
@@ -392,8 +396,14 @@ export function OnboardingPage() {
                   className="flex-1 flex flex-col"
                 >
                   <CardHeader className="px-0 pt-0 pb-6">
-                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4 text-primary">
-                      <User size={24} />
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4 text-primary p-2">
+                      <Image
+                        src="/logo.svg"
+                        alt="WageMore Logo"
+                        layout="constrained"
+                        width={24}
+                        height={24}
+                      />
                     </div>
                     <CardTitle className="text-2xl">
                       Welcome to WageMore
