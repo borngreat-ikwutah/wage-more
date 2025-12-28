@@ -9,15 +9,22 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './app/__root'
+import { Route as publicDashboardRouteRouteImport } from './app/(public)/dashboard/route'
 import { Route as publicPublicRouteRouteImport } from './app/(public)/_public/route'
 import { Route as publicauthRouteRouteImport } from './app/(public)/(auth)/route'
-import { Route as publicMarketsIndexRouteImport } from './app/(public)/markets/index'
 import { Route as publicPublicIndexRouteImport } from './app/(public)/_public/index'
 import { Route as ApiAuthSplatRouteImport } from './app/api/auth/$'
 import { Route as publicDashboardHomeIndexRouteImport } from './app/(public)/dashboard/home/index'
+import { Route as publicPublicSupportIndexRouteImport } from './app/(public)/_public/support/index'
+import { Route as publicPublicMarketsIndexRouteImport } from './app/(public)/_public/markets/index'
 import { Route as publicauthOnboardingIndexRouteImport } from './app/(public)/(auth)/onboarding/index'
 import { Route as publicauthLoginIndexRouteImport } from './app/(public)/(auth)/login/index'
 
+const publicDashboardRouteRoute = publicDashboardRouteRouteImport.update({
+  id: '/(public)/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const publicPublicRouteRoute = publicPublicRouteRouteImport.update({
   id: '/(public)/_public',
   getParentRoute: () => rootRouteImport,
@@ -25,11 +32,6 @@ const publicPublicRouteRoute = publicPublicRouteRouteImport.update({
 const publicauthRouteRoute = publicauthRouteRouteImport.update({
   id: '/(public)/(auth)',
   path: '',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const publicMarketsIndexRoute = publicMarketsIndexRouteImport.update({
-  id: '/(public)/markets/',
-  path: '/markets/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const publicPublicIndexRoute = publicPublicIndexRouteImport.update({
@@ -44,9 +46,21 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 } as any)
 const publicDashboardHomeIndexRoute =
   publicDashboardHomeIndexRouteImport.update({
-    id: '/(public)/dashboard/home/',
-    path: '/dashboard/home/',
-    getParentRoute: () => rootRouteImport,
+    id: '/home/',
+    path: '/home/',
+    getParentRoute: () => publicDashboardRouteRoute,
+  } as any)
+const publicPublicSupportIndexRoute =
+  publicPublicSupportIndexRouteImport.update({
+    id: '/support/',
+    path: '/support/',
+    getParentRoute: () => publicPublicRouteRoute,
+  } as any)
+const publicPublicMarketsIndexRoute =
+  publicPublicMarketsIndexRouteImport.update({
+    id: '/markets/',
+    path: '/markets/',
+    getParentRoute: () => publicPublicRouteRoute,
   } as any)
 const publicauthOnboardingIndexRoute =
   publicauthOnboardingIndexRouteImport.update({
@@ -61,71 +75,89 @@ const publicauthLoginIndexRoute = publicauthLoginIndexRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/dashboard': typeof publicDashboardRouteRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/': typeof publicPublicIndexRoute
-  '/markets': typeof publicMarketsIndexRoute
   '/login': typeof publicauthLoginIndexRoute
   '/onboarding': typeof publicauthOnboardingIndexRoute
+  '/markets': typeof publicPublicMarketsIndexRoute
+  '/support': typeof publicPublicSupportIndexRoute
   '/dashboard/home': typeof publicDashboardHomeIndexRoute
 }
 export interface FileRoutesByTo {
+  '/dashboard': typeof publicDashboardRouteRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/': typeof publicPublicIndexRoute
-  '/markets': typeof publicMarketsIndexRoute
   '/login': typeof publicauthLoginIndexRoute
   '/onboarding': typeof publicauthOnboardingIndexRoute
+  '/markets': typeof publicPublicMarketsIndexRoute
+  '/support': typeof publicPublicSupportIndexRoute
   '/dashboard/home': typeof publicDashboardHomeIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(public)/(auth)': typeof publicauthRouteRouteWithChildren
   '/(public)/_public': typeof publicPublicRouteRouteWithChildren
+  '/(public)/dashboard': typeof publicDashboardRouteRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/(public)/_public/': typeof publicPublicIndexRoute
-  '/(public)/markets/': typeof publicMarketsIndexRoute
   '/(public)/(auth)/login/': typeof publicauthLoginIndexRoute
   '/(public)/(auth)/onboarding/': typeof publicauthOnboardingIndexRoute
+  '/(public)/_public/markets/': typeof publicPublicMarketsIndexRoute
+  '/(public)/_public/support/': typeof publicPublicSupportIndexRoute
   '/(public)/dashboard/home/': typeof publicDashboardHomeIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/dashboard'
     | '/api/auth/$'
     | '/'
-    | '/markets'
     | '/login'
     | '/onboarding'
+    | '/markets'
+    | '/support'
     | '/dashboard/home'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/dashboard'
     | '/api/auth/$'
     | '/'
-    | '/markets'
     | '/login'
     | '/onboarding'
+    | '/markets'
+    | '/support'
     | '/dashboard/home'
   id:
     | '__root__'
     | '/(public)/(auth)'
     | '/(public)/_public'
+    | '/(public)/dashboard'
     | '/api/auth/$'
     | '/(public)/_public/'
-    | '/(public)/markets/'
     | '/(public)/(auth)/login/'
     | '/(public)/(auth)/onboarding/'
+    | '/(public)/_public/markets/'
+    | '/(public)/_public/support/'
     | '/(public)/dashboard/home/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   publicauthRouteRoute: typeof publicauthRouteRouteWithChildren
   publicPublicRouteRoute: typeof publicPublicRouteRouteWithChildren
+  publicDashboardRouteRoute: typeof publicDashboardRouteRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-  publicMarketsIndexRoute: typeof publicMarketsIndexRoute
-  publicDashboardHomeIndexRoute: typeof publicDashboardHomeIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/(public)/dashboard': {
+      id: '/(public)/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof publicDashboardRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(public)/_public': {
       id: '/(public)/_public'
       path: ''
@@ -138,13 +170,6 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof publicauthRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(public)/markets/': {
-      id: '/(public)/markets/'
-      path: '/markets'
-      fullPath: '/markets'
-      preLoaderRoute: typeof publicMarketsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(public)/_public/': {
@@ -163,10 +188,24 @@ declare module '@tanstack/react-router' {
     }
     '/(public)/dashboard/home/': {
       id: '/(public)/dashboard/home/'
-      path: '/dashboard/home'
+      path: '/home'
       fullPath: '/dashboard/home'
       preLoaderRoute: typeof publicDashboardHomeIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof publicDashboardRouteRoute
+    }
+    '/(public)/_public/support/': {
+      id: '/(public)/_public/support/'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof publicPublicSupportIndexRouteImport
+      parentRoute: typeof publicPublicRouteRoute
+    }
+    '/(public)/_public/markets/': {
+      id: '/(public)/_public/markets/'
+      path: '/markets'
+      fullPath: '/markets'
+      preLoaderRoute: typeof publicPublicMarketsIndexRouteImport
+      parentRoute: typeof publicPublicRouteRoute
     }
     '/(public)/(auth)/onboarding/': {
       id: '/(public)/(auth)/onboarding/'
@@ -201,21 +240,35 @@ const publicauthRouteRouteWithChildren = publicauthRouteRoute._addFileChildren(
 
 interface publicPublicRouteRouteChildren {
   publicPublicIndexRoute: typeof publicPublicIndexRoute
+  publicPublicMarketsIndexRoute: typeof publicPublicMarketsIndexRoute
+  publicPublicSupportIndexRoute: typeof publicPublicSupportIndexRoute
 }
 
 const publicPublicRouteRouteChildren: publicPublicRouteRouteChildren = {
   publicPublicIndexRoute: publicPublicIndexRoute,
+  publicPublicMarketsIndexRoute: publicPublicMarketsIndexRoute,
+  publicPublicSupportIndexRoute: publicPublicSupportIndexRoute,
 }
 
 const publicPublicRouteRouteWithChildren =
   publicPublicRouteRoute._addFileChildren(publicPublicRouteRouteChildren)
 
+interface publicDashboardRouteRouteChildren {
+  publicDashboardHomeIndexRoute: typeof publicDashboardHomeIndexRoute
+}
+
+const publicDashboardRouteRouteChildren: publicDashboardRouteRouteChildren = {
+  publicDashboardHomeIndexRoute: publicDashboardHomeIndexRoute,
+}
+
+const publicDashboardRouteRouteWithChildren =
+  publicDashboardRouteRoute._addFileChildren(publicDashboardRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   publicauthRouteRoute: publicauthRouteRouteWithChildren,
   publicPublicRouteRoute: publicPublicRouteRouteWithChildren,
+  publicDashboardRouteRoute: publicDashboardRouteRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
-  publicMarketsIndexRoute: publicMarketsIndexRoute,
-  publicDashboardHomeIndexRoute: publicDashboardHomeIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

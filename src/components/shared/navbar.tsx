@@ -179,13 +179,21 @@ export function Navbar() {
             {/* --- MOBILE SHEET CONTENT --- */}
             <SheetContent
               side="right"
-              className="w-[300px] sm:w-[400px] flex flex-col h-full"
+              className="w-[300px] sm:w-[400px] flex flex-col h-full px-4"
             >
-              <SheetHeader>
-                <SheetTitle className="text-left">Menu</SheetTitle>
-                <SheetDescription className="text-left">
-                  Navigate through WageMore
-                </SheetDescription>
+              <SheetHeader className="mt-6">
+                <Link className="flex items-center gap-2" to="/">
+                  <Image
+                    src="/logo.svg"
+                    alt="WageMore Logo"
+                    layout="constrained"
+                    width={30}
+                    height={30}
+                  />
+                  <h1 className="font-bold text-shadow-white text-base mt">
+                    WAGEMORE
+                  </h1>
+                </Link>
               </SheetHeader>
 
               <div className="flex flex-col flex-1 mt-6">
